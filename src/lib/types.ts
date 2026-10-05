@@ -11,7 +11,14 @@ export interface Task {
   description: string | null;
   status: TaskStatus;
   assignee_name: string | null;
+  waiting_for: string[];
+  approved_by: string[];
   created_at: string;
+}
+
+export interface FamilyMember {
+  id: string;
+  name: string;
 }
 
 export const STATUS_ORDER: TaskStatus[] = [

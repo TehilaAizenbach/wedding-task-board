@@ -33,7 +33,7 @@ export default function Modal({ open, onClose, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md animate-modal-in rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900"
+        className="max-h-[90vh] w-full max-w-md animate-modal-in overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl dark:bg-zinc-900"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
