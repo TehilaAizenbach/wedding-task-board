@@ -138,34 +138,30 @@ export default function Board() {
       taskId: string,
       compute: (task: Task) => Pick<Task, "waiting_for" | "approved_by">
     ): Promise<boolean> => {
-      let previous: Pick<Task, "waiting_for" | "approved_by"> | undefined;
-      let next: Pick<Task, "waiting_for" | "approved_by"> | undefined;
+      const target = tasks.find((t) => t.id === taskId);
+      if (!target) return false;
+
+      const previous: Pick<Task, "waiting_for" | "approved_by"> = {
+        waiting_for: target.waiting_for,
+        approved_by: target.approved_by,
+      };
+      const next = compute(target);
 
       setTasks((current) =>
-        current.map((t) => {
-          if (t.id !== taskId) return t;
-          previous = { waiting_for: t.waiting_for, approved_by: t.approved_by };
-          next = compute(t);
-          return { ...t, ...next };
-        })
+        current.map((t) => (t.id === taskId ? { ...t, ...next } : t))
       );
-
-      if (!next) return false;
 
       const { error } = await supabase.from("tasks").update(next).eq("id", taskId);
 
       if (error) {
-        const prevSnapshot = previous;
-        if (prevSnapshot) {
-          setTasks((current) =>
-            current.map((t) => (t.id === taskId ? { ...t, ...prevSnapshot } : t))
-          );
-        }
+        setTasks((current) =>
+          current.map((t) => (t.id === taskId ? { ...t, ...previous } : t))
+        );
         return false;
       }
       return true;
     },
-    []
+    [tasks]
   );
 
   const handleApprove = useCallback(
@@ -263,7 +259,7 @@ export default function Board() {
           </div>
           <div>
             <h1 className="text-base font-bold leading-tight text-zinc-900 dark:text-zinc-100">
-              לוח תכנון החתונה
+              רותי ומוישי מתחתנים
             </h1>
             <p className="text-xs text-zinc-400">
               {tasks.length} משימות בלוח

@@ -9,7 +9,7 @@ const rubik = Rubik({
 });
 
 export const metadata: Metadata = {
-  title: "לוח תכנון החתונה",
+  title: "רותי ומוישי מתחתנים",
   description: "לוח קנבן לניהול משימות חתונה – עיצוב, הדפסה ותיאומים מול הספקים",
 };
 
