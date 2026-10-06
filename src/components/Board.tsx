@@ -118,6 +118,7 @@ export default function Board() {
           description: data.description || null,
           assignee_name: data.assignee_name,
           waiting_for: data.waiting_for,
+          approved_by: [],
           status: "todo",
         })
         .select()
@@ -133,74 +134,41 @@ export default function Board() {
     []
   );
 
-  const updateApprovalFields = useCallback(
+  const handleUpdateApprovals = useCallback(
     async (
       taskId: string,
-      compute: (task: Task) => Pick<Task, "waiting_for" | "approved_by">
-    ): Promise<boolean> => {
-      const target = tasks.find((t) => t.id === taskId);
-      if (!target) return false;
-
-      const previous: Pick<Task, "waiting_for" | "approved_by"> = {
-        waiting_for: target.waiting_for,
-        approved_by: target.approved_by,
-      };
-      const next = compute(target);
-
+      next: { waiting_for: string[]; approved_by: string[] }
+    ) => {
+      let previous: { waiting_for: string[]; approved_by: string[] } | undefined;
       setTasks((current) =>
-        current.map((t) => (t.id === taskId ? { ...t, ...next } : t))
+        current.map((t) => {
+          if (t.id === taskId) {
+            previous = { waiting_for: t.waiting_for, approved_by: t.approved_by };
+            return { ...t, ...next };
+          }
+          return t;
+        })
       );
 
-      const { error } = await supabase.from("tasks").update(next).eq("id", taskId);
+      const { error } = await supabase
+        .from("tasks")
+        .update({
+          waiting_for: next.waiting_for,
+          approved_by: next.approved_by,
+        })
+        .eq("id", taskId);
 
       if (error) {
-        setTasks((current) =>
-          current.map((t) => (t.id === taskId ? { ...t, ...previous } : t))
-        );
-        return false;
+        if (previous) {
+          const prev = previous;
+          setTasks((current) =>
+            current.map((t) => (t.id === taskId ? { ...t, ...prev } : t))
+          );
+        }
+        toast.error("עדכון האישורים נכשל");
       }
-      return true;
     },
-    [tasks]
-  );
-
-  const handleApprove = useCallback(
-    async (taskId: string, person: string) => {
-      const ok = await updateApprovalFields(taskId, (task) => ({
-        waiting_for: task.waiting_for.filter((p) => p !== person),
-        approved_by: task.approved_by.includes(person)
-          ? task.approved_by
-          : [...task.approved_by, person],
-      }));
-      toast[ok ? "success" : "error"](
-        ok ? `האישור של ${person} נרשם` : "עדכון האישור נכשל"
-      );
-    },
-    [updateApprovalFields]
-  );
-
-  const handleRemoveWaiting = useCallback(
-    async (taskId: string, person: string) => {
-      const ok = await updateApprovalFields(taskId, (task) => ({
-        waiting_for: task.waiting_for.filter((p) => p !== person),
-        approved_by: task.approved_by,
-      }));
-      if (!ok) toast.error("ההסרה נכשלה");
-    },
-    [updateApprovalFields]
-  );
-
-  const handleAddWaiting = useCallback(
-    async (taskId: string, person: string) => {
-      const ok = await updateApprovalFields(taskId, (task) => ({
-        waiting_for: task.waiting_for.includes(person)
-          ? task.waiting_for
-          : [...task.waiting_for, person],
-        approved_by: task.approved_by,
-      }));
-      if (!ok) toast.error("ההוספה נכשלה");
-    },
-    [updateApprovalFields]
+    []
   );
 
   const addFamilyMember = useCallback(async (name: string) => {
@@ -259,7 +227,7 @@ export default function Board() {
           </div>
           <div>
             <h1 className="text-base font-bold leading-tight text-zinc-900 dark:text-zinc-100">
-              רותי ומוישי מתחתנים
+              לוח תכנון החתונה
             </h1>
             <p className="text-xs text-zinc-400">
               {tasks.length} משימות בלוח
@@ -294,9 +262,7 @@ export default function Board() {
                   familyMembers={familyMembers}
                   onStatusChange={handleStatusChange}
                   onDelete={requestDelete}
-                  onApprove={handleApprove}
-                  onRemoveWaiting={handleRemoveWaiting}
-                  onAddWaiting={handleAddWaiting}
+                  onUpdateApprovals={handleUpdateApprovals}
                 />
               ))}
             </div>

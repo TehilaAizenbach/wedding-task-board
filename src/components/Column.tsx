@@ -1,7 +1,13 @@
 "use client";
 
 import { Droppable } from "@hello-pangea/dnd";
-import { FamilyMember, Task, TaskStatus, STATUS_LABELS, STATUS_STYLES } from "@/lib/types";
+import {
+  FamilyMember,
+  Task,
+  TaskStatus,
+  STATUS_LABELS,
+  STATUS_STYLES,
+} from "@/lib/types";
 import TaskCard from "./TaskCard";
 
 interface ColumnProps {
@@ -10,9 +16,10 @@ interface ColumnProps {
   familyMembers: FamilyMember[];
   onStatusChange: (taskId: string, status: TaskStatus) => void;
   onDelete: (taskId: string) => void;
-  onApprove: (taskId: string, person: string) => void;
-  onRemoveWaiting: (taskId: string, person: string) => void;
-  onAddWaiting: (taskId: string, person: string) => void;
+  onUpdateApprovals: (
+    taskId: string,
+    next: { waiting_for: string[]; approved_by: string[] }
+  ) => void;
 }
 
 export default function Column({
@@ -21,9 +28,7 @@ export default function Column({
   familyMembers,
   onStatusChange,
   onDelete,
-  onApprove,
-  onRemoveWaiting,
-  onAddWaiting,
+  onUpdateApprovals,
 }: ColumnProps) {
   const style = STATUS_STYLES[status];
 
@@ -59,9 +64,7 @@ export default function Column({
                 familyMembers={familyMembers}
                 onStatusChange={onStatusChange}
                 onDelete={onDelete}
-                onApprove={onApprove}
-                onRemoveWaiting={onRemoveWaiting}
-                onAddWaiting={onAddWaiting}
+                onUpdateApprovals={onUpdateApprovals}
               />
             ))}
             {provided.placeholder}

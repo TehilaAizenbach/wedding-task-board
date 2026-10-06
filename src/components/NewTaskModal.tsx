@@ -87,7 +87,7 @@ export default function NewTaskModal({
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="עיצוב הזמנה"
+            placeholder="לדוגמה: אישור תפריט מול האולם"
             className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
         </div>
@@ -116,7 +116,7 @@ export default function NewTaskModal({
 
         <MultiPersonSelect
           label="ממתין לאישור של..."
-          value={waitingFor}
+          selected={waitingFor}
           onChange={setWaitingFor}
           people={familyMembers}
           onAddPerson={onAddFamilyMember}

@@ -90,4 +90,4 @@ export const WAITING_FOR_BADGE_CLASS =
   "border border-dashed border-amber-400 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300";
 
 export const APPROVED_BADGE_CLASS =
-  "bg-emerald-500 text-white dark:bg-emerald-600";
+  "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300";
